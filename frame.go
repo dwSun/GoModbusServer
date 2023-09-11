@@ -2,6 +2,7 @@ package mbserver
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"strconv"
 	"time"
 )
@@ -70,11 +71,33 @@ func SetDataWithRegisterAndNumberAndBytes(frame Framer, register uint16, number 
 
 func frameToString(frame Framer, time time.Time) string {
 
-	fc := frame.GetFunction()
+	msg := "\nTime : " + time.String()
+	msg = msg + "\nBytes : "
+	bytes_str := hex.EncodeToString(frame.Bytes())
 
-	msg := "Modbus-Request :" + functionCodeToString(fc)
-	msg = msg + "\nTime : " + time.String()
-	switch fc {
+	for i := 0; i < len(bytes_str); i += 2 {
+		msg = msg + " " + bytes_str[i:i+2]
+	}
+
+	functi := frame.GetFunction()
+	address := frame.GetAddress()
+	msg = msg + "\nFunctionCode : " + strconv.Itoa(int(functi))
+	msg = msg + "\nFunctionName : " + functionCodeToString(functi)
+	msg = msg + "\nAddress : " + strconv.Itoa(int(address))
+
+	if rtuFrame, ok := frame.(*RTUFrame); ok {
+		msg = msg + "\nRTUFrame"
+		msg = msg + "\nCRC : " + strconv.Itoa(int(rtuFrame.CRC))
+	}
+
+	if tcpFrame, ok := frame.(*TCPFrame); ok {
+		msg = msg + "\nTCPFrame"
+		msg = msg + "\nTransactionIdentifier : " + strconv.Itoa(int(tcpFrame.TransactionIdentifier))
+		msg = msg + "\nProtocolIdentifier : " + strconv.Itoa(int(tcpFrame.ProtocolIdentifier))
+		msg = msg + "\nLength : " + strconv.Itoa(int(tcpFrame.Length))
+	}
+
+	switch functi {
 	case ReadDiscreteInput_fc, ReadHoldingRegisters_fc, ReadInputRegisters_fc:
 		register, numRegs, _ := RegisterAddressAndNumber(frame)
 		msg = msg + "\nStart-Register  " + strconv.Itoa(register)

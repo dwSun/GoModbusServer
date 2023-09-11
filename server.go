@@ -96,14 +96,19 @@ func (s *Server) handler() {
 	for {
 		request, ok := <-s.requestChan
 		if ok {
-			if s.outChan != nil {
-				select {
-				case s.outChan <- frameToString(request.frame.Copy(), request.t): // be aware of data corruption with the next function
-
-				default: // just to make sure that this channel won't block the server
+			if s.Debug {
+				if s.outChan != nil { // already checked
+					s.outChan <- "<<--Request<<--"
+					s.outChan <- frameToString(request.frame.Copy(), request.t)
 				}
 			}
 			response := s.handle(request)
+			if s.Debug {
+				if s.outChan != nil { // already checked
+					s.outChan <- "-->>Response-->>"
+					s.outChan <- frameToString(response.Copy(), time.Now())
+				}
+			}
 			request.conn.Write(response.Bytes())
 		} else {
 			close(s.outChan)
