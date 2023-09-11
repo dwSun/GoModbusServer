@@ -143,7 +143,7 @@ func WriteSingleCoil(s *Server, frame Framer) ([]byte, *Exception) {
 		return []byte{}, &IllegalDataAddress
 	}
 
-	if value == 0 || value == 65535 {
+	if value == 0 || value == 0xff00 {
 		if value == 0 {
 			s.Coils[register] = byte(0)
 		} else {

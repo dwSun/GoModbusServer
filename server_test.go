@@ -42,7 +42,7 @@ func TestAduSetDataWithRegisterAndNumberAndValues(t *testing.T) {
 }
 
 func TestUnsupportedFunction(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	var frame TCPFrame
 	frame.Function = 255
 
@@ -57,7 +57,7 @@ func TestUnsupportedFunction(t *testing.T) {
 
 func TestModbus(t *testing.T) {
 	// Server
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 
 	s.InputRegisters = make([]byte, 65535)
 	s.HoldingRegisters = make([]byte, 65535)
@@ -75,7 +75,7 @@ func TestModbus(t *testing.T) {
 
 	// Client
 	handler := modbus.NewTCPClientHandler("127.0.0.1:3333")
-	handler.SlaveId = 255
+	handler.SlaveId = 128
 	// Connect manually so that multiple requests are handled in one connection session
 	err = handler.Connect()
 	if err != nil {
@@ -163,12 +163,12 @@ func TestModbus(t *testing.T) {
 
 func TestReadRequests(t *testing.T) {
 
-	serv, _ := NewServer(255)
+	serv, _ := NewServer(128)
 
 	//create new Buff-Reader with the desired "Read" in the constructor
 
 	//Test 1 :: Valid Request and clear Buffer
-	data := []byte{255, 3, 0, 12, 0, 2, 127, 128}
+	data := []byte{128, 3, 0, 12, 0, 2, 127, 128}
 	buffReader := bytes.NewBuffer(data)
 
 	req, _, err := serv.readRequests(buffReader)
@@ -182,7 +182,7 @@ func TestReadRequests(t *testing.T) {
 	}
 
 	//Valid Request but split in Buffer and Read
-	serv.last = []byte{255}
+	serv.last = []byte{128}
 
 	data = []byte{3, 0, 12, 0, 2, 127, 128}
 	buffReader.Write(data)
@@ -193,7 +193,7 @@ func TestReadRequests(t *testing.T) {
 		t.Errorf("Test2 :expected nil, got %v\n", err)
 	}
 
-	data = append([]byte{255}, data...)
+	data = append([]byte{128}, data...)
 	if !isEqual(data, req) {
 		t.Errorf("Test2 :expected %v got %v\n", data, req)
 	}
@@ -201,7 +201,7 @@ func TestReadRequests(t *testing.T) {
 	//invalid buffer without Slave-Id and then valid Request
 	serv.last = []byte{2, 36, 36, 99}
 
-	data = []byte{255, 3, 0, 12, 0, 2, 127, 128}
+	data = []byte{128, 3, 0, 12, 0, 2, 127, 128}
 	buffReader.Write(data)
 
 	req, _, err = serv.readRequests(buffReader)
@@ -215,9 +215,9 @@ func TestReadRequests(t *testing.T) {
 	}
 
 	//invalid buffer with Slave-Id and then valid Request
-	serv.last = []byte{2, 255, 36, 99}
+	serv.last = []byte{2, 128, 36, 99}
 
-	data = []byte{255, 3, 0, 12, 0, 2, 127, 128}
+	data = []byte{128, 3, 0, 12, 0, 2, 127, 128}
 	buffReader.Write(data)
 
 	req, _, err = serv.readRequests(buffReader)
@@ -237,7 +237,7 @@ func TestReadRequests(t *testing.T) {
 	}
 
 	//invalid buffer with Slave-Id and then valid Request
-	serv.last = []byte{2, 255, 36, 99, 255, 3, 0, 12, 0, 2, 127, 128}
+	serv.last = []byte{2, 128, 36, 99, 128, 3, 0, 12, 0, 2, 127, 128}
 
 	//data = []byte{255, 3, 0, 12, 0, 2, 127, 128}
 	//buffReader.Write(data)
@@ -259,9 +259,9 @@ func TestReadRequests(t *testing.T) {
 	}
 
 	//Valid Request but split in Buffer and Read
-	serv.last = []byte{255}
+	serv.last = []byte{128}
 
-	data = []byte{3, 0, 12, 0, 2, 127, 128, 255, 3, 0, 12, 0, 2, 127, 128}
+	data = []byte{3, 0, 12, 0, 2, 127, 128, 128, 3, 0, 12, 0, 2, 127, 128}
 	buffReader.Write(data)
 
 	req, n, err := serv.readRequests(buffReader)
@@ -270,23 +270,23 @@ func TestReadRequests(t *testing.T) {
 		t.Errorf("Test5 :expected nil, got %v\n", err)
 	}
 
-	data = append([]byte{255}, data...)
+	data = append([]byte{128}, data...)
 	if !isEqual(data[:n], req) {
 		t.Errorf("Test5 :expected %v got %v\n", data[:n], req)
 	}
 
-	if tail := []byte{255, 3, 0, 12, 0, 2, 127, 128}; !isEqual(serv.last, tail) {
+	if tail := []byte{128, 3, 0, 12, 0, 2, 127, 128}; !isEqual(serv.last, tail) {
 		t.Errorf("Test 5: s.last expected %v got %v\n", tail, serv.last)
 	}
 
 	//test readwriteMultipleRegisters
 
-	data = []byte{255, 23, 0, 3, 0, 6, 0, 12, 0, 3, 6, 0, 200, 0, 200, 0, 200, 127, 128}
+	data = []byte{128, 23, 0, 3, 0, 6, 0, 12, 0, 3, 6, 0, 200, 0, 200, 0, 200, 127, 128}
 	buffReader.Write(data)
 
 	req, _, err = serv.readRequests(buffReader)
 
-	if !isEqual(req, []byte{255, 3, 0, 12, 0, 2, 127, 128}) {
+	if !isEqual(req, []byte{128, 3, 0, 12, 0, 2, 127, 128}) {
 		t.Errorf("Test 6 : req expectet %v got %v\n", data, req)
 	}
 

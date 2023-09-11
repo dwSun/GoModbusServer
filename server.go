@@ -33,14 +33,16 @@ type Request struct {
 	t     time.Time //add time so we can log it as well
 }
 
-//could improve the constructor to make it clearer to use
+// could improve the constructor to make it clearer to use
 func NewServer(id uint8) (*Server, error) {
 	s := &Server{}
 
 	if id == 0 {
-		return nil, errors.New("Modbus Slave Id must not be set to 0")
+		return nil, errors.New("modbus slave id must not be set to 0")
 	}
-
+	if id > 247 {
+		return nil, errors.New("modbus slave id must not be greater than 247")
+	}
 	s.slaveId = id
 	// Allocate Modbus memory maps.
 	//s.DiscreteInputs = make([]byte, numberDiscreteInputs) //memory usage could be minimized

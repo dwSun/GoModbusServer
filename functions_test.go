@@ -6,7 +6,11 @@ import (
 
 // Function 1
 func TestReadCoils(t *testing.T) {
-	s, _ := NewServer(255)
+	s, err := NewServer(128)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+		t.FailNow()
+	}
 
 	s.Coils = make([]byte, 65535)
 
@@ -20,7 +24,7 @@ func TestReadCoils(t *testing.T) {
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 6
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 1
 	SetDataWithRegisterAndNumber(&frame, 10, 9)
 
@@ -45,7 +49,7 @@ func TestReadCoils(t *testing.T) {
 
 // Function 2
 func TestReadDiscreteInputs(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.DiscreteInputs = make([]byte, 500)
 	// Set the discrete input values
 	s.DiscreteInputs[0] = 1
@@ -61,7 +65,7 @@ func TestReadDiscreteInputs(t *testing.T) {
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 6
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 2
 	SetDataWithRegisterAndNumber(&frame, 0, 10)
 
@@ -83,7 +87,7 @@ func TestReadDiscreteInputs(t *testing.T) {
 
 // Function 3
 func TestReadHoldingRegisters(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.HoldingRegisters = make([]byte, 500)
 	s.HoldingRegisters[200] = 0
 	s.HoldingRegisters[201] = 1
@@ -98,7 +102,7 @@ func TestReadHoldingRegisters(t *testing.T) {
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 6
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 3
 	SetDataWithRegisterAndNumber(&frame, 100, 3)
 
@@ -119,7 +123,7 @@ func TestReadHoldingRegisters(t *testing.T) {
 
 // Function 4
 func TestReadInputRegisters(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.InputRegisters = make([]byte, 500)
 	s.InputRegisters[400] = 0
 	s.InputRegisters[401] = 1
@@ -132,7 +136,7 @@ func TestReadInputRegisters(t *testing.T) {
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 6
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 4
 	SetDataWithRegisterAndNumber(&frame, 200, 3)
 
@@ -153,18 +157,18 @@ func TestReadInputRegisters(t *testing.T) {
 
 // Function 5
 func TestWriteSingleCoil(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.Coils = make([]byte, 100000)
 
 	var frame TCPFrame
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 12
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 5
 	//SetDataWithRegisterAndNumber(&frame, 65535, 1024)
 
-	SetDataWithRegisterAndNumber(&frame, 65535, 0xffff)
+	SetDataWithRegisterAndNumber(&frame, 65535, 0xff00)
 
 	var req Request
 	req.frame = &frame
@@ -183,14 +187,14 @@ func TestWriteSingleCoil(t *testing.T) {
 
 // Function 6
 func TestWriteHoldingRegister(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.HoldingRegisters = make([]byte, 100)
 
 	var frame TCPFrame
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 12
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 6
 	SetDataWithRegisterAndNumber(&frame, 5, 6)
 
@@ -211,14 +215,14 @@ func TestWriteHoldingRegister(t *testing.T) {
 
 // Function 15
 func TestWriteMultipleCoils(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.Coils = make([]byte, 500)
 
 	var frame TCPFrame
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 12
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 15
 	SetDataWithRegisterAndNumberAndBytes(&frame, 1, 2, []byte{3})
 
@@ -239,14 +243,14 @@ func TestWriteMultipleCoils(t *testing.T) {
 
 // Function 16
 func TestWriteHoldingRegisters(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 	s.HoldingRegisters = make([]byte, 500)
 
 	var frame TCPFrame
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 12
-	frame.Device = 255
+	frame.Address = 128
 	frame.Function = 16
 	SetDataWithRegisterAndNumberAndValues(&frame, 1, 2, []uint16{3, 4})
 
@@ -284,13 +288,13 @@ func TestUint16ToBytes(t *testing.T) {
 }
 
 func TestOutOfBounds(t *testing.T) {
-	s, _ := NewServer(255)
+	s, _ := NewServer(128)
 
 	var frame TCPFrame
 	frame.TransactionIdentifier = 1
 	frame.ProtocolIdentifier = 0
 	frame.Length = 6
-	frame.Device = 255
+	frame.Address = 128
 
 	var req Request
 	req.frame = &frame
