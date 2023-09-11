@@ -10,9 +10,14 @@ type TCPFrame struct {
 	TransactionIdentifier uint16
 	ProtocolIdentifier    uint16
 	Length                uint16
-	Device                uint8
+	Address               uint8
 	Function              uint8
 	Data                  []byte
+}
+
+// GetFunction returns the Modbus function code.
+func (frame *TCPFrame) GetFunction() uint8 {
+	return frame.Function
 }
 
 // NewTCPFrame converts a packet to a Modbus TCP frame.
@@ -26,7 +31,7 @@ func NewTCPFrame(packet []byte) (*TCPFrame, error) {
 		TransactionIdentifier: binary.BigEndian.Uint16(packet[0:2]),
 		ProtocolIdentifier:    binary.BigEndian.Uint16(packet[2:4]),
 		Length:                binary.BigEndian.Uint16(packet[4:6]),
-		Device:                uint8(packet[6]),
+		Address:               uint8(packet[6]),
 		Function:              uint8(packet[7]),
 		Data:                  packet[8:],
 	}
@@ -52,16 +57,16 @@ func (frame *TCPFrame) Bytes() []byte {
 	binary.BigEndian.PutUint16(bytes[0:2], frame.TransactionIdentifier)
 	binary.BigEndian.PutUint16(bytes[2:4], frame.ProtocolIdentifier)
 	binary.BigEndian.PutUint16(bytes[4:6], uint16(2+len(frame.Data)))
-	bytes[6] = frame.Device
+	bytes[6] = frame.Address
 	bytes[7] = frame.Function
 	bytes = append(bytes, frame.Data...)
 
 	return bytes
 }
 
-// GetFunction returns the Modbus function code.
-func (frame *TCPFrame) GetFunction() uint8 {
-	return frame.Function
+// GetAddress returns the Modbus address.
+func (frame *TCPFrame) GetAddress() uint8 {
+	return frame.Address
 }
 
 // GetData returns the TCPFrame Data byte field.

@@ -34,6 +34,7 @@ func NewRTUFrame(packet []byte) (*RTUFrame, error) {
 		Address:  uint8(packet[0]),
 		Function: uint8(packet[1]),
 		Data:     packet[2 : packetLen-2],
+		CRC:      crcGot,
 	}
 
 	return frame, nil
@@ -67,6 +68,11 @@ func (frame *RTUFrame) Bytes() []byte {
 // GetFunction returns the Modbus function code.
 func (frame *RTUFrame) GetFunction() uint8 {
 	return frame.Function
+}
+
+// GetAddress returns the Modbus address.
+func (frame *RTUFrame) GetAddress() uint8 {
+	return frame.Address
 }
 
 // GetData returns the RTUFrame Data byte field.

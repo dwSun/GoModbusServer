@@ -13,6 +13,8 @@ type Framer interface {
 	Copy() Framer
 	GetData() []byte
 	GetFunction() uint8
+	GetAddress() uint8
+
 	SetException(exception *Exception)
 	SetData(data []byte)
 }

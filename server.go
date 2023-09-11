@@ -44,11 +44,16 @@ func NewServer(id uint8) (*Server, error) {
 		return nil, errors.New("modbus slave id must not be greater than 247")
 	}
 	s.slaveId = id
+
+	numberDiscreteInputs := 512
+	numberCoils := 512
+	numberHoldingRegisters := 512
+	numberInputRegisers := 512
 	// Allocate Modbus memory maps.
-	//s.DiscreteInputs = make([]byte, numberDiscreteInputs) //memory usage could be minimized
-	//s.Coils = make([]byte, numberCoils)
-	//s.HoldingRegisters = make([]byte, numberHoldingRegisters*2)
-	//s.InputRegisters = make([]byte, numberInputRegisers*2)
+	s.DiscreteInputs = make([]byte, numberDiscreteInputs) //memory usage could be minimized
+	s.Coils = make([]byte, numberCoils)
+	s.HoldingRegisters = make([]byte, numberHoldingRegisters*2)
+	s.InputRegisters = make([]byte, numberInputRegisers*2)
 
 	s.function = make(map[uint8]func(*Server, Framer) ([]byte, *Exception))
 
